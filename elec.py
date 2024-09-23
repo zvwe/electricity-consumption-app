@@ -92,7 +92,7 @@ def plot_day_hour_consumption(df):
     st.pyplot(fig)
 
 def detect_anomalies(df, threshold=3):
-    df['HourStart'] = df['Datetime'].dt.floor('H')
+    df['HourStart'] = df['Datetime'].dt.floor('h')
 
     # Group by day of the week and full hour
     df['DayOfWeek'] = df['HourStart'].dt.day_name()
