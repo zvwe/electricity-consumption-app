@@ -6,8 +6,13 @@ import numpy as np
 from datetime import datetime
 import os
 import streamlit as st
+from PIL import Image
+import io
+import requests
 
-#Run no command line : streamlit run elec.py
+from providers import load_config, display_package_comparison  # Import from providers.py
+
+# Run without command line: streamlit run elec.py
 
 def load_and_clean_data(df):
     # Delete column 'A'
@@ -26,6 +31,7 @@ def load_and_clean_data(df):
 
     # Remove rows with invalid dates
     df = df.dropna(subset=['Datetime'])
+
 
     # Check and handle missing values (assuming 0 for missing consumption)
     df['Consumption'] = df['Consumption'].fillna(0)
@@ -115,6 +121,7 @@ def detect_anomalies(df, threshold=3):
 
     return anomalies
 
+
 def main():
     st.title("Electricity Consumption Analysis")
 
@@ -151,6 +158,14 @@ def main():
             st.dataframe(anomalies[['HourStart', 'DayOfWeek', 'Hour', 'Consumption', 'MeanConsumption', 'StdConsumption', 'ZScore']].round(2))
         else:
             st.subheader("No anomalies detected.")
+
+        # Load providers configurations
+        providers_config = load_config()
+
+        # Iterate over each provider and display comparison
+        for provider_name, config in providers_config.items():
+            display_package_comparison(df, provider_name, config)
+            st.markdown("---")  # Separator between providers
 
     else:
         st.info("Awaiting CSV file upload.")

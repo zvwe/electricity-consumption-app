@@ -1,0 +1,72 @@
+providers:
+  Bezeq:
+    logo_path: "assets/logos/bezeq.png"
+    packages:
+      Package 1:
+        description: "15% discount for Sunday to Thursday, 07:00-17:00"
+        discount: 0.85
+        conditions:
+          days_of_week: [6, 0, 1, 2, 3]  # Sunday=6, Monday=0, ..., Thursday=3
+          start_hour: 7
+          end_hour: 17
+      Package 2:
+        description: "Constant 7% discount"
+        discount: 0.93
+        conditions: {}  # Empty conditions imply always applicable
+      Package 3:
+        description: "20% discount for Sunday to Thursday, 23:00-07:00"
+        discount: 0.80
+        conditions:
+          days_of_week: [6, 0, 1, 2, 3]
+          start_hour: 23
+          end_hour: 7
+  Cellcom:
+    logo_path: "assets/logos/cellcom.png"
+    packages:
+      Package 1:
+        description: "18% discount all days, 14:00-20:00"
+        discount: 0.82
+        conditions:
+          days_of_week: [0, 1, 2, 3, 4, 5, 6]  # All days
+          start_hour: 14
+          end_hour: 20
+      Package 2:
+        description: "Constant 5% discount"
+        discount: 0.95
+        conditions: {}
+      Package 3:
+        description: "15% discount Sun-Thu, 07:00-17:00"
+        discount: 0.85
+        conditions:
+          days_of_week: [6, 0, 1, 2, 3]
+          start_hour: 7
+          end_hour: 17
+      Package 4:
+        description: "20% discount all days, 23:00-07:00"
+        discount: 0.80
+        conditions:
+          days_of_week: [0, 1, 2, 3, 4, 5, 6]  # All days
+          start_hour: 23
+          end_hour: 7
+  ElectraPower:
+      logo_path: "assets/logos/Electra.png"
+      packages:
+        Package 1:
+          description: "8% discount all days, 23:00-17:00 |Year #1"
+          discount: 0.92
+          conditions:
+            days_of_week: [0, 1, 2, 3, 4, 5, 6]  # All days
+            start_hour: 23
+            end_hour: 17
+        Package 2:
+          description: "Constant 5% discount | Year #1"
+          discount: 0.95
+          conditions: {}
+        Package 3:
+          description: "20% discount all days, 23:00-07:00"
+          discount: 0.80
+          conditions:
+            days_of_week: [0, 1, 2, 3, 4, 5, 6]  # All days
+            start_hour: 23
+            end_hour: 7
+      
