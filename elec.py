@@ -27,9 +27,6 @@ def load_and_clean_data(df):
     # Remove rows with invalid dates
     df = df.dropna(subset=['Datetime'])
 
-    # Remove all rows where the month is May
-    df = df[df['Datetime'].dt.month != 5]
-
     # Check and handle missing values (assuming 0 for missing consumption)
     df['Consumption'] = df['Consumption'].fillna(0)
 
