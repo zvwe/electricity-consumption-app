@@ -135,15 +135,7 @@ def main():
 
         st.success("Data loaded successfully!")
 
-        # Detect anomalies
-        anomalies = detect_anomalies(df)
-
-        if not anomalies.empty:
-            st.subheader("Anomalies Detected")
-            st.dataframe(anomalies[['HourStart', 'DayOfWeek', 'Hour', 'Consumption', 'MeanConsumption', 'StdConsumption', 'ZScore']].round(2))
-        else:
-            st.subheader("No anomalies detected.")
-
+        
         # Plots
         st.subheader("Month-over-Month Electricity Consumption")
         plot_month_over_month_consumption(df)
@@ -153,6 +145,16 @@ def main():
 
         st.subheader("Average Hourly Consumption (Month-over-Month)")
         plot_day_hour_consumption(df)
+
+        # Detect anomalies
+        anomalies = detect_anomalies(df)
+
+        if not anomalies.empty:
+            st.subheader("Anomalies Detected")
+            st.dataframe(anomalies[['HourStart', 'DayOfWeek', 'Hour', 'Consumption', 'MeanConsumption', 'StdConsumption', 'ZScore']].round(2))
+        else:
+            st.subheader("No anomalies detected.")
+
     else:
         st.info("Awaiting CSV file upload.")
 
