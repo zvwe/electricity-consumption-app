@@ -10,9 +10,9 @@ providers:
           start_hour: 7
           end_hour: 17
       Package 2:
-        description: "Constant 7% discount"
+        description: "Constant 7% discount all days all hours"
         discount: 0.93
-        conditions: {}  # Empty conditions imply always applicable
+        conditions: {} 
       Package 3:
         description: "20% discount for Sunday to Thursday, 23:00-07:00"
         discount: 0.80
@@ -31,7 +31,7 @@ providers:
           start_hour: 14
           end_hour: 20
       Package 2:
-        description: "Constant 5% discount"
+        description: "Constant 5% discount all days all hours"
         discount: 0.95
         conditions: {}
       Package 3:
@@ -52,14 +52,14 @@ providers:
       logo_path: "assets/logos/Electra.png"
       packages:
         Package 1:
-          description: "8% discount all days, 23:00-17:00 |Year #1"
+          description: "8% discount all days, 23:00-17:00 @ Year #1"
           discount: 0.92
           conditions:
             days_of_week: [0, 1, 2, 3, 4, 5, 6]  # All days
             start_hour: 23
             end_hour: 17
         Package 2:
-          description: "Constant 5% discount | Year #1"
+          description: "Constant 5% discount all days all hours @ Year #1"
           discount: 0.95
           conditions: {}
         Package 3:
