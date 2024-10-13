@@ -32,7 +32,6 @@ def load_and_clean_data(df):
     # Remove rows with invalid dates
     df = df.dropna(subset=['Datetime'])
 
-
     # Check and handle missing values (assuming 0 for missing consumption)
     df['Consumption'] = df['Consumption'].fillna(0)
 
@@ -94,6 +93,49 @@ def plot_day_hour_consumption(df):
     plt.tight_layout()
     st.pyplot(fig)
 
+def plot_seasonal_hourly_consumption(df):
+    # Map months to seasons
+    def get_season(month):
+        if month in [12, 1, 2]:
+            return 'Winter'
+        elif month in [3, 4, 5]:
+            return 'Spring'
+        elif month in [6, 7, 8]:
+            return 'Summer'
+        elif month in [9, 10, 11]:
+            return 'Autumn'
+
+    df['Season'] = df['Datetime'].dt.month.apply(get_season)
+    df['Hour'] = df['Datetime'].dt.hour
+    df['Date'] = df['Datetime'].dt.date
+
+    # Step 1: Sum the 'Consumption' per day per hour
+    hourly_consumption = df.groupby(['Season', 'Date', 'Hour'])['Consumption'].sum().reset_index()
+
+    # Step 2: Calculate the average hourly consumption per season
+    average_hourly_consumption = hourly_consumption.groupby(['Season', 'Hour'])['Consumption'].mean().unstack()
+
+    # Ensure the seasons are in the correct order
+    seasons_order = ['Winter', 'Spring', 'Summer', 'Autumn']
+    average_hourly_consumption = average_hourly_consumption.reindex(seasons_order)
+
+    # Plot
+    fig, ax = plt.subplots(figsize=(12, 8))
+    colors = plt.cm.plasma(np.linspace(0, 1, len(seasons_order)))
+
+    for i, season in enumerate(seasons_order):
+        if season in average_hourly_consumption.index:
+            ax.plot(average_hourly_consumption.columns, average_hourly_consumption.loc[season], label=season, color=colors[i])
+
+    ax.set_title('Average Hourly Consumption per Season')
+    ax.set_xlabel('Hour of the Day')
+    ax.set_ylabel('Average Consumption (kWh)')
+    ax.legend(title='Season')
+    ax.grid(True)
+    plt.tight_layout()
+    st.pyplot(fig)
+
+
 def detect_anomalies(df, threshold=3):
     df['HourStart'] = df['Datetime'].dt.floor('h')
 
@@ -121,7 +163,6 @@ def detect_anomalies(df, threshold=3):
 
     return anomalies
 
-
 def main():
     st.title("Electricity Consumption Analysis")
 
@@ -139,7 +180,6 @@ def main():
 
         st.success("Data loaded successfully!")
 
-        
         # Plots
         st.subheader("Month-over-Month Electricity Consumption")
         plot_month_over_month_consumption(df)
@@ -149,6 +189,9 @@ def main():
 
         st.subheader("Average Hourly Consumption (Month-over-Month)")
         plot_day_hour_consumption(df)
+
+        st.subheader("Average Hourly Consumption per Season")
+        plot_seasonal_hourly_consumption(df)
 
         # Detect anomalies
         anomalies = detect_anomalies(df)
@@ -175,3 +218,5 @@ def run():
 
 if __name__ == "__main__":
     run()
+
+
