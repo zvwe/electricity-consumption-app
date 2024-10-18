@@ -259,14 +259,45 @@ def display_package_comparison(df, provider_name, config):
         discount_percentage = (discount_consumption / total_consumption) * 100
         discount_usage[package_name] = discount_percentage
         desc = package_details['description']
-        st.markdown(f"- {discount_percentage:.2f}% of your usage is during {package_name} discount hours ({desc})")
+        st.markdown(f"- **{package_name}**: {discount_percentage:.2f}% of your usage is during discount hours ({desc})")
 
-    # Provide recommendations based on usage patterns
+    # Provide recommendations based on total usage and seasonal patterns
     st.subheader("Recommendations")
+
+    # Identify patterns in total usage and seasons
+    st.markdown("### Analysis Summary")
+    total_usage = df['Consumption'].sum()
+    seasonal_savings = calculate_seasonal_savings(df, config)
+
+    # Summarize total and seasonal usage patterns
+    st.markdown(f"**Total Usage:** {total_usage:.2f} kWh")
+
+    for season, savings in seasonal_savings.items():
+        st.markdown(f"**{season} Savings Analysis:**")
+        for package_name, saving in savings.items():
+            st.markdown(f"- **{package_name}**: {saving:.2f}% savings during {season}")
+
+    # Provide recommendations based on analysis
+    st.markdown("### Personalized Recommendations")
+
+    # Determine if a specific package performed better during any season
+    best_package_per_season = {season: max(savings, key=savings.get) for season, savings in seasonal_savings.items()}
+
+    for season, best_package in best_package_per_season.items():
+        best_savings = seasonal_savings[season][best_package]
+        st.markdown(f"- During **{season}**, the **{best_package}** package offered the highest savings of **{best_savings:.2f}%**. Consider optimizing your usage to align with this package's discount conditions during this season.")
+
+    if discount_usage:
+        # Provide further recommendations based on discount hour usage
+        for package_name, discount_percentage in discount_usage.items():
+            if discount_percentage < 50:  # Assuming less than 50% usage in discount hours can be improved
+                st.markdown(f"- **{package_name}**: Currently, only **{discount_percentage:.2f}%** of your usage falls during discount hours. Shifting more of your consumption to these hours can significantly increase your savings.")
+
+    # General recommendation for the best package
     if best_package:
-        # Identify if best package is a constant discount
         best_package_details = config['packages'][best_package]
         if not best_package_details.get('conditions'):
-            st.markdown(f"Your usage is fairly consistent throughout the day. **{best_package}** with its constant discount might be the most convenient for you.")
+            st.markdown(f"Overall, your usage is fairly consistent throughout the day. **{best_package}** with its constant discount might be the most convenient for you.")
         else:
-            st.markdown(f"You could benefit from shifting more of your usage to the discount hours of **{best_package}** to maximize your savings.")
+            st.markdown(f"To maximize your savings, consider shifting more of your usage to align with the discount hours of **{best_package}**.")
+
