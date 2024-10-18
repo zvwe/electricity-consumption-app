@@ -98,6 +98,52 @@ def calculate_packages(df, provider_name, config):
 
     return total_usage
 
+def identify_seasons(df):
+    """
+    Identify seasons for each entry in the DataFrame based on the month.
+
+    Args:
+        df (pd.DataFrame): The consumption DataFrame.
+
+    Returns:
+        pd.DataFrame: DataFrame with an added 'Season' column.
+    """
+    def get_season(month):
+        if month in [12, 1, 2]:
+            return 'Winter'
+        elif month in [3, 4, 5]:
+            return 'Spring'
+        elif month in [6, 7, 8]:
+            return 'Summer'
+        elif month in [9, 10, 11]:
+            return 'Autumn'
+
+    df['Season'] = df['Datetime'].dt.month.apply(get_season)
+    return df
+
+def calculate_seasonal_savings(df, config):
+    """
+    Calculate seasonal savings for each package.
+
+    Args:
+        df (pd.DataFrame): The consumption DataFrame.
+        config (dict): Provider's package configuration.
+
+    Returns:
+        dict: Dictionary containing total savings per package for each season.
+    """
+    seasonal_savings = {}
+    for season in df['Season'].unique():
+        seasonal_df = df[df['Season'] == season]
+        base_usage = seasonal_df['BaseUsage'].sum()
+        season_savings = {}
+        for package_name, package_details in config['packages'].items():
+            total_usage = seasonal_df[package_name].sum()
+            savings = (base_usage - total_usage) / base_usage * 100 if base_usage > 0 else 0
+            season_savings[package_name] = savings
+        seasonal_savings[season] = season_savings
+    return seasonal_savings
+
 def display_package_comparison(df, provider_name, config):
     """
     Display package comparison for a given provider.
@@ -133,7 +179,7 @@ def display_package_comparison(df, provider_name, config):
         with cols[idx]:
             st.markdown(f"### {package_name}")
             st.markdown(package_details['description'])
-            st.metric("Savings", f"{savings[package_name]:.2f}%")
+            st.metric("Total Usage Savings", f"{savings[package_name]:.2f}%")
 
     # Find the best package
     best_package = max(savings, key=savings.get)
@@ -141,7 +187,7 @@ def display_package_comparison(df, provider_name, config):
 
     # Display results with improved styling
     st.markdown("---")
-    st.markdown(f"### 🏆 Best {provider_name} Package: {best_package}")
+    st.markdown(f"### 🏆 Best {provider_name} Package for Total Usage: {best_package}")
     st.markdown(f"**Potential Savings:** {best_savings:.2f}%")
 
     # Visualize savings with a bar chart
@@ -152,13 +198,51 @@ def display_package_comparison(df, provider_name, config):
 
     ax.bar(packages, savings_values, color=colors)
     ax.set_ylabel('Savings (%)')
-    ax.set_title(f'{provider_name} Package Comparison - Potential Savings')
+    ax.set_title(f'{provider_name} Package Comparison for Total Usage - Potential Savings')
     plt.xticks(rotation=45)
 
     for i, saving in enumerate(savings_values):
         ax.text(i, saving, f'{saving:.2f}%', ha='center', va='bottom')
 
     st.pyplot(fig)
+
+ 
+    # Visualize seasonal savings with a bar chart
+
+    # calculate seasonal savings analysis
+    seasonal_savings = calculate_seasonal_savings(df, config)
+    fig, ax = plt.subplots(figsize=(10, 5))
+    seasons = list(seasonal_savings.keys())
+    package_names = list(config['packages'].keys())
+    bar_width = 0.2
+    x = np.arange(len(seasons))
+
+   
+
+    for i, package_name in enumerate(package_names):
+        savings_values = [seasonal_savings[season].get(package_name, 0) for season in seasons]
+        bars = ax.bar(x + i * bar_width, savings_values, width=bar_width, label=package_name)
+
+        # Add savings percentage above each bar
+        for bar, saving in zip(bars, savings_values):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height(),
+                f'{saving:.2f}%',
+                ha='center',
+                va='bottom',
+                fontsize=9
+            )
+
+    ax.set_ylabel('Savings (%)')
+    ax.set_title(f'{provider_name} Seasonal Potential Savings per Package')
+    ax.set_xticks(x + bar_width * (len(package_names) / 2))
+    ax.set_xticklabels(seasons)
+    plt.xticks(rotation=45)
+    ax.legend()
+
+    st.pyplot(fig)
+
 
     # Display usage patterns
     st.subheader(f"Your Electricity Usage Patterns with {provider_name} Packages")

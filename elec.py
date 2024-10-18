@@ -119,7 +119,7 @@ def plot_seasonal_hourly_consumption(df):
     seasons_order = ['Winter', 'Spring', 'Summer', 'Autumn']
     average_hourly_consumption = average_hourly_consumption.reindex(seasons_order)
 
-    # Plot
+     # Plot
     fig, ax = plt.subplots(figsize=(12, 8))
     colors = plt.cm.plasma(np.linspace(0, 1, len(seasons_order)))
 
@@ -134,6 +134,7 @@ def plot_seasonal_hourly_consumption(df):
     ax.grid(True)
     plt.tight_layout()
     st.pyplot(fig)
+
 
 
 def detect_anomalies(df, threshold=3):
@@ -201,6 +202,7 @@ def main():
             st.dataframe(anomalies[['HourStart', 'DayOfWeek', 'Hour', 'Consumption', 'MeanConsumption', 'StdConsumption', 'ZScore']].round(2))
         else:
             st.subheader("No anomalies detected.")
+            
 
         # Load providers configurations
         providers_config = load_config()
