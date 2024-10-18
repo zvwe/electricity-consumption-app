@@ -187,8 +187,7 @@ def display_package_comparison(df, provider_name, config):
 
     # Display results with improved styling
     st.markdown("---")
-    st.markdown(f"### 🏆 Best {provider_name} Package for Total Usage: {best_package}")
-    st.markdown(f"**Potential Savings:** {best_savings:.2f}%")
+    st.markdown(f"### 🏆 Best {provider_name} Package for Total Usage and Seasonal periods")
 
     # Visualize savings with a bar chart
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -243,10 +242,7 @@ def display_package_comparison(df, provider_name, config):
 
     st.pyplot(fig)
 
-
-    # Display usage patterns
-    st.subheader(f"Your Electricity Usage Patterns with {provider_name} Packages")
-
+       
     # Calculate percentage of usage during discount hours for applicable packages
     discount_usage = {}
     for package_name, package_details in config['packages'].items():
@@ -261,24 +257,8 @@ def display_package_comparison(df, provider_name, config):
         desc = package_details['description']
         st.markdown(f"- **{package_name}**: {discount_percentage:.2f}% of your usage is during discount hours ({desc})")
 
-    # Provide recommendations based on total usage and seasonal patterns
-    st.subheader("Recommendations")
-
-    # Identify patterns in total usage and seasons
-    st.markdown("### Analysis Summary")
-    total_usage = df['Consumption'].sum()
-    seasonal_savings = calculate_seasonal_savings(df, config)
-
-    # Summarize total and seasonal usage patterns
-    st.markdown(f"**Total Usage:** {total_usage:.2f} kWh")
-
-    for season, savings in seasonal_savings.items():
-        st.markdown(f"**{season} Savings Analysis:**")
-        for package_name, saving in savings.items():
-            st.markdown(f"- **{package_name}**: {saving:.2f}% savings during {season}")
-
-    # Provide recommendations based on analysis
-    st.markdown("### Personalized Recommendations")
+    # DisplayPersonalized Recommendations
+    st.subheader(f"Your Personalized Recommendations with {provider_name} Packages")
 
     # Determine if a specific package performed better during any season
     best_package_per_season = {season: max(savings, key=savings.get) for season, savings in seasonal_savings.items()}
