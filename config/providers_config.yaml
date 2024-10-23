@@ -70,7 +70,7 @@ providers:
             start_hour: 23
             end_hour: 7
   HotEnergy:
-        logo_path: "assets/logos/Hot.png"
+        logo_path: "assets/logos/hot.png"
         packages:
           Package 1:
             description: "20% discount for Sunday to Thursday, 23:00-07:00"
