@@ -205,6 +205,17 @@ def display_package_comparison(df, provider_name, config):
 
     st.pyplot(fig)
 
+     # Calculate percentage of usage during discount hours for applicable packages
+    discount_usage = {}
+    for package_name, package_details in config['packages'].items():
+        conditions = package_details['conditions']
+        condition_series = parse_conditions(df, conditions)
+        discount_consumption = df[condition_series]['Consumption'].sum()
+        total_consumption = df['Consumption'].sum()
+        discount_percentage = (discount_consumption / total_consumption) * 100
+        discount_usage[package_name] = discount_percentage
+        desc = package_details['description']
+        st.markdown(f"- **{package_name}**: {discount_percentage:.2f}% of your usage is during discount hours ({desc})")
  
     # Visualize seasonal savings with a bar chart
 
@@ -215,8 +226,6 @@ def display_package_comparison(df, provider_name, config):
     package_names = list(config['packages'].keys())
     bar_width = 0.2
     x = np.arange(len(seasons))
-
-   
 
     for i, package_name in enumerate(package_names):
         savings_values = [seasonal_savings[season].get(package_name, 0) for season in seasons]
@@ -241,24 +250,10 @@ def display_package_comparison(df, provider_name, config):
     ax.legend()
 
     st.pyplot(fig)
-
-       
-    # Calculate percentage of usage during discount hours for applicable packages
-    discount_usage = {}
-    for package_name, package_details in config['packages'].items():
-        if not package_details.get('conditions'):  # Skip constant discount packages
-            continue
-        conditions = package_details['conditions']
-        condition_series = parse_conditions(df, conditions)
-        discount_consumption = df[condition_series]['Consumption'].sum()
-        total_consumption = df['Consumption'].sum()
-        discount_percentage = (discount_consumption / total_consumption) * 100
-        discount_usage[package_name] = discount_percentage
-        desc = package_details['description']
-        st.markdown(f"- **{package_name}**: {discount_percentage:.2f}% of your usage is during discount hours ({desc})")
-
+      
+   
     # DisplayPersonalized Recommendations
-    st.subheader(f"Your Personalized Recommendations with {provider_name} Packages")
+    st.subheader(f"Your Seasonal Personalized recommendations with {provider_name} packages")
 
     # Determine if a specific package performed better during any season
     best_package_per_season = {season: max(savings, key=savings.get) for season, savings in seasonal_savings.items()}
@@ -266,12 +261,6 @@ def display_package_comparison(df, provider_name, config):
     for season, best_package in best_package_per_season.items():
         best_savings = seasonal_savings[season][best_package]
         st.markdown(f"- During **{season}**, the **{best_package}** package offered the highest savings of **{best_savings:.2f}%**. Consider optimizing your usage to align with this package's discount conditions during this season.")
-
-    if discount_usage:
-        # Provide further recommendations based on discount hour usage
-        for package_name, discount_percentage in discount_usage.items():
-            if discount_percentage < 50:  # Assuming less than 50% usage in discount hours can be improved
-                st.markdown(f"- **{package_name}**: Currently, only **{discount_percentage:.2f}%** of your usage falls during discount hours. Shifting more of your consumption to these hours can significantly increase your savings.")
 
     # General recommendation for the best package
     if best_package:
